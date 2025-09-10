@@ -17,8 +17,6 @@ const eslintConfig = [
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
   {
     rules: {
-      'import/consistent-type-specifier-style': ['error'],
-      '@typescript-eslint/consistent-type-imports': 'error',
       '@typescript-eslint/no-empty-object-type': 'off',
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/no-unused-vars': [
