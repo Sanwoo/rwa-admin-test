@@ -1,0 +1,265 @@
+[
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_rwa",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_pr_rwa",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_stable_rwa",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_market",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_bank",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_pool",
+				"type": "address"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			}
+		],
+		"name": "OwnableInvalidOwner",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "OwnableUnauthorizedAccount",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "token",
+				"type": "address"
+			}
+		],
+		"name": "SafeERC20FailedOperation",
+		"type": "error"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "previousOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "RWA",
+		"outputs": [
+			{
+				"internalType": "contract IERC20",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "StableRwa",
+		"outputs": [
+			{
+				"internalType": "contract IERC20",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "bank",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "borrowAndInvest",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "token",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenWorth",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "desired",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "borrow",
+				"type": "bool"
+			}
+		],
+		"name": "invest",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "market",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "pool",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "prRwa",
+		"outputs": [
+			{
+				"internalType": "contract IERC20",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "token",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "desired",
+				"type": "uint256"
+			}
+		],
+		"name": "reinvest",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+]
