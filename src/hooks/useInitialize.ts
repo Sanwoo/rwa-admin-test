@@ -1,10 +1,10 @@
-import { config } from '@/wagmi'
-import type { supportedChainIds } from '@/wagmi'
-import glaAbi from '@/lib/abi/gla.json'
 import { useCallback } from 'react'
-import type { Abi } from 'viem'
 import { simulateContract, waitForTransactionReceipt } from '@wagmi/core'
 import { useAccount, useWriteContract } from 'wagmi'
+import { config } from '@/wagmi'
+import glaAbi from '@/lib/abi/gla.json'
+import type { supportedChainIds } from '@/wagmi'
+import type { Abi } from 'viem'
 
 export const useInitialize = () => {
   const { writeContractAsync } = useWriteContract()
