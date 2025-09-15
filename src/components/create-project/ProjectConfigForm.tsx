@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
@@ -10,81 +10,56 @@ import { usePresetConfig } from '@/hooks/usePresetConfig'
 import { useCreateProject } from '@/hooks/useCreateProject'
 import { toast } from 'sonner'
 import { LoaderCircle } from 'lucide-react'
-import { ProjectConfigFormSkeleton } from './ProjectConfigFormSkeleton'
 import { formatUnits } from 'viem'
 import { WEUSD_DECIMALS } from '@/lib/constants'
 
 export interface ProjectConfig {
   // tokens config
   tokens: {
-    rwaName: string
-    rwaSymbol: string
-    prRwaName: string
-    prRwaSymbol: string
-    stableRwaName: string
-    stableRwaSymbol: string
-  }
-
-  // bank config
-  bank: {
-    dev: string
-    borrowFee: number
+    rwaName: string // RWA token name
+    rwaSymbol: string // RWA token symbol
+    devAmount: number // platform RWA token amount
+    initialAmount: number // RWA token initial supply
+    receiver: string // RWA token initial supply receiver
+    dayNum: number // days number per period
+    periodNum: number // lock periods
+    prRwaName: string // prRwa token name
+    prRwaSymbol: string // prRwa token symbol
+    stableRwaName: string // STABLE_RWA token name
+    stableRwaSymbol: string // STABLE_RWA token symbol
   }
 
   // market price config
   marketPrice: {
-    target: number
-    targetAdjusted: number
-    minTarget: number
-    maxTargetAdjusted: number
-    raiseStep: number
-    lowerStep: number
-    lowerInterval: number
+    k: number // Price function slope reciprocal × 1e18, 1e15-1e21, recommended 2e18
+    target: number // Target funding ratio (based on 10000) 1000-8000, recommended 5000
+    targetAdjusted: number // Adjusted target funding ratio (based on 10000) target-10000, recommended 6000
+    minTarget: number // Minimum target funding ratio (based on 10000) 500-target, recommended 3000
+    maxTargetAdjusted: number // Maximum adjusted target funding ratio (based on 10000) targetAdjusted-10000, recommended 7000
+    raiseStep: number // Step size for each increase (based on 10000) 100-2000, recommended 500
+    lowerStep: number // Step size for each decrease (based on 10000) 50-1000, recommended 100
+    lowerInterval: number // Decrease time interval (seconds) 1 hours-30 days, recommended 7 days
   }
 
   // market fee config
   marketFee: {
-    dev: string
-    buyFee: number
-    sellFee: number
-  }
-
-  // price formula config
-  priceFormula: {
-    k: string
-    initialPrice: string
-    floorPrice: string
-    floorSupply: string
-    initialWorth: string
-  }
-
-  // stake reward config
-  stakeReward: {
-    mintPercentPerDay: number
-    blocksPerDay: number
-    totalAllocPoint: number
-    rwaPoolAlloc: number
-  }
-
-  // stake fee config
-  stakeFee: {
-    dev: string
-    withdrawFee: number
-    mintFee: number
+    dev: string // Developer address, receives trading fees
+    buyFee: number // RWA purchase fee (based on 10000) 0-2000, recommended 200
+    sellFee: number // RWA sale fee (based on 10000) 0-2000, recommended 300
   }
 
   // gla config
   gla: {
-    beforeWhitelistInterval: number
-    whitelistInterval: number
-    publicOfferingInterval: number
-    initInterval: number
-    whitelistPrice: number
-    publicOfferingPrice: number
-    softCap: number
-    hardCap: number
-    whitelistMaxCapPerUser: number
-    WEUSDToken: string
+    beforeWhitelistInterval: number // Pre-whitelist wait time (seconds) recommended 7 days
+    whitelistInterval: number // Whitelist stage time (seconds) recommended 3 days
+    publicOfferingInterval: number // Public offering stage time (seconds) recommended 7 days
+    initInterval: number // Initialization stage time (seconds) recommended 1 day
+    whitelistPrice: number // Whitelist price (1e6 precision) recommended 500000
+    publicOfferingPrice: number // Public offering price (1e6 precision) recommended 1000000
+    softCap: number // Soft cap (WEUSD) recommended 50000e6
+    hardCap: number // Hard cap (WEUSD) recommended 200000e6
+    whitelistMaxCapPerUser: number // Maximum purchase amount per whitelist user recommended 1000e6
+    WEUSDToken: string // WEUSD token address
   }
 }
 
@@ -92,57 +67,41 @@ const defaultConfigValues: ProjectConfig = {
   tokens: {
     rwaName: '',
     rwaSymbol: '',
+    devAmount: 0,
+    initialAmount: 0,
+    receiver: '',
+    dayNum: 0,
+    periodNum: 0,
     prRwaName: '',
     prRwaSymbol: '',
     stableRwaName: '',
     stableRwaSymbol: '',
   },
-  bank: {
-    dev: '',
-    borrowFee: 0,
-  },
   marketPrice: {
-    target: 0,
-    targetAdjusted: 0,
-    minTarget: 0,
-    maxTargetAdjusted: 0,
-    raiseStep: 0,
-    lowerStep: 0,
-    lowerInterval: 0,
+    k: 0,
+    target: 5000,
+    targetAdjusted: 6000,
+    minTarget: 3000,
+    maxTargetAdjusted: 7000,
+    raiseStep: 500,
+    lowerStep: 100,
+    lowerInterval: 604800, // 7 days in seconds
   },
   marketFee: {
     dev: '',
-    buyFee: 0,
-    sellFee: 0,
-  },
-  priceFormula: {
-    k: '',
-    initialPrice: '',
-    floorPrice: '',
-    floorSupply: '',
-    initialWorth: '',
-  },
-  stakeReward: {
-    mintPercentPerDay: 0,
-    blocksPerDay: 0,
-    totalAllocPoint: 0,
-    rwaPoolAlloc: 0,
-  },
-  stakeFee: {
-    dev: '',
-    withdrawFee: 0,
-    mintFee: 0,
+    buyFee: 200,
+    sellFee: 300,
   },
   gla: {
-    beforeWhitelistInterval: 0,
-    whitelistInterval: 0,
-    publicOfferingInterval: 0,
-    initInterval: 0,
-    whitelistPrice: 0,
-    publicOfferingPrice: 0,
-    softCap: 0,
-    hardCap: 0,
-    whitelistMaxCapPerUser: 0,
+    beforeWhitelistInterval: 604800, // 7 days
+    whitelistInterval: 259200, // 3 days
+    publicOfferingInterval: 604800, // 7 days
+    initInterval: 86400, // 1 day
+    whitelistPrice: 500000, // 0.5 WEUSD
+    publicOfferingPrice: 1000000, // 1 WEUSD
+    softCap: 50000000000, // 50000e6
+    hardCap: 200000000000, // 200000e6
+    whitelistMaxCapPerUser: 1000000000, // 1000e6
     WEUSDToken: '',
   },
 }
@@ -153,17 +112,20 @@ export interface ProjectFormValues extends ProjectConfig {
 
 export const ProjectConfigForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
   const [currentConfigType, setCurrentConfigType] = useState<'conservative' | 'aggressive' | 'balanced' | null>(null)
-  const [configs, setConfigs] = useState<{
-    conservative: ProjectConfig | null
-    aggressive: ProjectConfig | null
-    balanced: ProjectConfig | null
-  } | null>(null)
+  const [loadingStates, setLoadingStates] = useState<{
+    conservative: boolean
+    aggressive: boolean
+    balanced: boolean
+  }>({
+    conservative: false,
+    aggressive: false,
+    balanced: false,
+  })
   // use useState function form to ensure getting the latest value, avoid closure trap
   const [formValues, setFormValues] = useState<ProjectFormValues>({ projectName: '', ...defaultConfigValues })
 
-  const { getAllConfigs } = usePresetConfig()
+  const { getConservativeConfig, getAggressiveConfig, getBalancedConfig } = usePresetConfig()
 
   const formatGlaConfig = useCallback((config: ProjectConfig): ProjectConfig => {
     return {
@@ -178,48 +140,6 @@ export const ProjectConfigForm = () => {
       },
     }
   }, [])
-
-  // get configs from contract
-  useEffect(() => {
-    const initializeConfigs = async () => {
-      try {
-        setIsLoading(true)
-        const allConfigs = await getAllConfigs()
-
-        if (allConfigs) {
-          // process the result from contract
-          const processedConfigs = {
-            conservative:
-              allConfigs.conservative && 'result' in allConfigs.conservative && allConfigs.conservative.status === 'success' ? formatGlaConfig(allConfigs.conservative.result as ProjectConfig) : null,
-            aggressive:
-              allConfigs.aggressive && 'result' in allConfigs.aggressive && allConfigs.aggressive.status === 'success' ? formatGlaConfig(allConfigs.aggressive.result as ProjectConfig) : null,
-            balanced: allConfigs.balanced && 'result' in allConfigs.balanced && allConfigs.balanced.status === 'success' ? formatGlaConfig(allConfigs.balanced.result as ProjectConfig) : null,
-          }
-
-          setConfigs(processedConfigs)
-
-          // set the current config type to conservative
-          if (processedConfigs.conservative) {
-            setCurrentConfigType('conservative')
-          }
-        }
-      } catch (error) {
-        toast.error(`Failed to initialize configs: ${error}`)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    initializeConfigs()
-  }, [getAllConfigs, formatGlaConfig])
-
-  // when the configs are loaded, set the form values
-  useEffect(() => {
-    if (!isLoading && configs?.conservative) {
-      setFormValues({ projectName: '', ...configs.conservative })
-      setCurrentConfigType('conservative')
-    }
-  }, [isLoading, configs])
 
   const form = useForm<ProjectFormValues>({
     values: {
@@ -250,21 +170,48 @@ export const ProjectConfigForm = () => {
   const handleGetConfig = useCallback(
     async (configType: 'conservative' | 'aggressive' | 'balanced') => {
       try {
-        if (configs?.[configType]) {
-          setFormValues({ projectName: formValues.projectName, ...configs[configType] })
+        // Set loading state for the corresponding config
+        setLoadingStates((prev) => ({ ...prev, [configType]: true }))
+
+        let configData: ProjectConfig
+
+        // Call the corresponding function based on config type
+        switch (configType) {
+          case 'conservative':
+            configData = (await getConservativeConfig()) as ProjectConfig
+            break
+          case 'aggressive':
+            configData = (await getAggressiveConfig()) as ProjectConfig
+            break
+          case 'balanced':
+            configData = (await getBalancedConfig()) as ProjectConfig
+            break
+          default:
+            throw new Error(`Unknown config type: ${configType}`)
+        }
+
+        if (configData) {
+          // Format config data
+          const formattedConfig = formatGlaConfig(configData)
+          const newFormValues = { projectName: formValues.projectName, ...formattedConfig }
+
+          setFormValues(newFormValues)
+          form.reset(newFormValues)
           setCurrentConfigType(configType)
-          toast.success(`Applied ${configType} config from cache`)
+
+          toast.success(`Successfully applied ${configType} config`)
+        } else {
+          toast.error(`Failed to get ${configType} config: no data`)
         }
       } catch (error) {
-        toast.error(`Failed to apply ${configType} config: ${error}`)
+        console.error(`Failed to get ${configType} config:`, error)
+        toast.error(`Failed to get ${configType} config: ${error instanceof Error ? error.message : String(error)}`)
+      } finally {
+        setLoadingStates((prev) => ({ ...prev, [configType]: false }))
       }
     },
-    [configs, formValues.projectName],
+    [formValues.projectName, form, formatGlaConfig, getConservativeConfig, getAggressiveConfig, getBalancedConfig],
   )
-
-  if (isLoading) {
-    return <ProjectConfigFormSkeleton />
-  }
 
   return (
     <>
@@ -273,22 +220,28 @@ export const ProjectConfigForm = () => {
           onClick={() => handleGetConfig('conservative')}
           variant={currentConfigType === 'conservative' ? 'default' : 'outline'}
           className={currentConfigType === 'conservative' ? 'bg-blue-600 text-white' : ''}
+          disabled={loadingStates.conservative}
         >
-          Apply Conservative Config
+          {loadingStates.conservative && <LoaderCircle className="w-4 h-4 mr-2 animate-spin" />}
+          {loadingStates.conservative ? 'Loading Conservative Config...' : 'Apply Conservative Config'}
         </Button>
         <Button
           onClick={() => handleGetConfig('aggressive')}
           variant={currentConfigType === 'aggressive' ? 'default' : 'outline'}
           className={currentConfigType === 'aggressive' ? 'bg-blue-600 text-white' : ''}
+          disabled={loadingStates.aggressive}
         >
-          Apply Aggressive Config
+          {loadingStates.aggressive && <LoaderCircle className="w-4 h-4 mr-2 animate-spin" />}
+          {loadingStates.aggressive ? 'Loading Aggressive Config...' : 'Apply Aggressive Config'}
         </Button>
         <Button
           onClick={() => handleGetConfig('balanced')}
           variant={currentConfigType === 'balanced' ? 'default' : 'outline'}
           className={currentConfigType === 'balanced' ? 'bg-blue-600 text-white' : ''}
+          disabled={loadingStates.balanced}
         >
-          Apply Balanced Config
+          {loadingStates.balanced && <LoaderCircle className="w-4 h-4 mr-2 animate-spin" />}
+          {loadingStates.balanced ? 'Loading Balanced Config...' : 'Apply Balanced Config'}
         </Button>
       </div>
 
@@ -354,6 +307,19 @@ export const ProjectConfigForm = () => {
                 />
                 <FormField
                   control={form.control}
+                  name="tokens.devAmount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>devAmount</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="1000000" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
                   name="tokens.prRwaName"
                   render={({ field }) => (
                     <FormItem>
@@ -404,24 +370,25 @@ export const ProjectConfigForm = () => {
                     </FormItem>
                   )}
                 />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* bank config */}
-          <Card>
-            <CardHeader>
-              <CardTitle>bank config</CardTitle>
-              <CardDescription>configure the bank related parameters</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="bank.dev"
+                  name="tokens.initialAmount"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>dev</FormLabel>
+                      <FormLabel>initialAmount</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="10000000" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="tokens.receiver"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>receiver</FormLabel>
                       <FormControl>
                         <Input placeholder="0x..." {...field} />
                       </FormControl>
@@ -431,12 +398,25 @@ export const ProjectConfigForm = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="bank.borrowFee"
+                  name="tokens.dayNum"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>borrowFee</FormLabel>
+                      <FormLabel>dayNum</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="500" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
+                        <Input type="number" placeholder="30" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="tokens.periodNum"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>periodNum</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="12" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -456,12 +436,64 @@ export const ProjectConfigForm = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
+                  name="marketPrice.k"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>k (slope reciprocal)</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="2000000000000000000" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
                   name="marketPrice.target"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>target</FormLabel>
+                      <FormLabel>target (funding ratio)</FormLabel>
                       <FormControl>
                         <Input type="number" placeholder="5000" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="marketPrice.targetAdjusted"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>targetAdjusted</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="6000" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="marketPrice.minTarget"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>minTarget</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="3000" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="marketPrice.maxTargetAdjusted"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>maxTargetAdjusted</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="7000" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -487,7 +519,7 @@ export const ProjectConfigForm = () => {
                     <FormItem>
                       <FormLabel>lowerStep</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="250" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
+                        <Input type="number" placeholder="100" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -498,9 +530,9 @@ export const ProjectConfigForm = () => {
                   name="marketPrice.lowerInterval"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>lowerInterval</FormLabel>
+                      <FormLabel>lowerInterval (seconds)</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="3600" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
+                        <Input type="number" placeholder="604800" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -552,198 +584,6 @@ export const ProjectConfigForm = () => {
                       <FormLabel>sellFee</FormLabel>
                       <FormControl>
                         <Input type="number" placeholder="100" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* price formula config */}
-          <Card>
-            <CardHeader>
-              <CardTitle>price formula config</CardTitle>
-              <CardDescription>configure the price calculation related parameters</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="priceFormula.k"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>k</FormLabel>
-                      <FormControl>
-                        <Input placeholder="1000000000000000000" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="priceFormula.initialPrice"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>initialPrice</FormLabel>
-                      <FormControl>
-                        <Input placeholder="1000000000000000000" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="priceFormula.floorPrice"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>floorPrice</FormLabel>
-                      <FormControl>
-                        <Input placeholder="500000000000000000" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="priceFormula.floorSupply"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>floorSupply</FormLabel>
-                      <FormControl>
-                        <Input placeholder="1000000000000000000000000000" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="priceFormula.initialWorth"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>initialWorth</FormLabel>
-                      <FormControl>
-                        <Input placeholder="1000000000000000000000000000000" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* stake reward config */}
-          <Card>
-            <CardHeader>
-              <CardTitle>stake reward config</CardTitle>
-              <CardDescription>configure the stake reward related parameters</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="stakeReward.mintPercentPerDay"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>mintPercentPerDay</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="100" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="stakeReward.blocksPerDay"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>blocksPerDay</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="28800" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="stakeReward.totalAllocPoint"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>totalAllocPoint</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="1000" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="stakeReward.rwaPoolAlloc"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>rwaPoolAlloc</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="500" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* stake fee config */}
-          <Card>
-            <CardHeader>
-              <CardTitle>stake fee config</CardTitle>
-              <CardDescription>configure the stake related fee</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="stakeFee.dev"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>dev</FormLabel>
-                      <FormControl>
-                        <Input placeholder="0x..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="stakeFee.withdrawFee"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>withdrawFee</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="50" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="stakeFee.mintFee"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>mintFee</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="50" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
