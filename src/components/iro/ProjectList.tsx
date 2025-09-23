@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../ui/card'
 import { Button } from '../ui/button'
 import { RefreshCw, Search, Copy, Check, LoaderCircle } from 'lucide-react'
@@ -10,21 +10,21 @@ import { useGetProjects } from '@/hooks/useGetProjects'
 import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
 import { Badge } from '../ui/badge'
-import { formatDecimalInput, createRequiredDecimalValidator, createAddressValidator, formatAddressInput } from '@/lib/validation'
-import { useWhitelistBuy } from '@/hooks/useWhitelistBuy'
+import { createAddressValidator, formatAddressInput } from '@/lib/validation'
+// import { useWhitelistBuy } from '@/hooks/useWhitelistBuy'
 import { useAddWhitelist } from '@/hooks/useAddWhitelist'
-import { isAddress, parseUnits } from 'viem'
+import { isAddress } from 'viem'
 import { z } from 'zod'
 import { ProjectListSkeleton } from './ProjectListSkeleton'
 import type { Phase } from '@/lib/constants'
-import { WEUSD_DECIMALS } from '@/lib/constants'
+// import { WEUSD_DECIMALS } from '@/lib/constants'
 import { useGetPhase } from '@/hooks/useGetPhase'
-import { useWEUSDApprove } from '@/hooks/useWEUSDApprove'
-import { usePublicOfferingBuy } from '@/hooks/usePublicOfferingBuy'
-import { useWithdraw } from '@/hooks/useWithdraw'
-import { useClaim } from '@/hooks/useClaim'
-import { useBuy } from '@/hooks/useBuy'
-import { useSell } from '@/hooks/useSell'
+// import { useWEUSDApprove } from '@/hooks/useWEUSDApprove'
+// import { usePublicOfferingBuy } from '@/hooks/usePublicOfferingBuy'
+// import { useWithdraw } from '@/hooks/useWithdraw'
+// import { useClaim } from '@/hooks/useClaim'
+// import { useBuy } from '@/hooks/useBuy'
+// import { useSell } from '@/hooks/useSell'
 import { useInitialize } from '@/hooks/useInitialize'
 
 interface ProjectInfoDetail extends ProjectInfo {
@@ -33,36 +33,36 @@ interface ProjectInfoDetail extends ProjectInfo {
 
 const ProjectList = () => {
   const { isConnected } = useAccount()
-  const { whitelistBuy } = useWhitelistBuy()
+  // const { whitelistBuy } = useWhitelistBuy()
   const { addWhitelist } = useAddWhitelist()
   const { getProjects } = useGetProjects()
   const { getPhase } = useGetPhase()
-  const { approveWEUSD } = useWEUSDApprove()
-  const { publicOfferingBuy } = usePublicOfferingBuy()
-  const { withdraw } = useWithdraw()
-  const { claim } = useClaim()
-  const { buy } = useBuy()
-  const { sell } = useSell()
+  // const { approveWEUSD } = useWEUSDApprove()
+  // const { publicOfferingBuy } = usePublicOfferingBuy()
+  // const { withdraw } = useWithdraw()
+  // const { claim } = useClaim()
+  // const { buy } = useBuy()
+  // const { sell } = useSell()
   const { initialize } = useInitialize()
 
   const [searchTerm, setSearchTerm] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [projects, setProjects] = useState<ProjectInfoDetail[]>([])
   const [copiedIds, setCopiedIds] = useState<{ [key: string]: boolean }>({})
-  const [projectWhitelistAmounts, setProjectWhitelistAmounts] = useState<{ [key: string]: string }>({})
-  const [projectPublicOfferingAmounts, setProjectPublicOfferingAmounts] = useState<{ [key: string]: string }>({})
+  // const [projectWhitelistAmounts, setProjectWhitelistAmounts] = useState<{ [key: string]: string }>({})
+  // const [projectPublicOfferingAmounts, setProjectPublicOfferingAmounts] = useState<{ [key: string]: string }>({})
 
-  const [projectBuyAmounts, setProjectBuyAmounts] = useState<{ [key: string]: string }>({})
-  const [projectSellAmounts, setProjectSellAmounts] = useState<{ [key: string]: string }>({})
+  // const [projectBuyAmounts, setProjectBuyAmounts] = useState<{ [key: string]: string }>({})
+  // const [projectSellAmounts, setProjectSellAmounts] = useState<{ [key: string]: string }>({})
 
   const [whitelistAddresses, setWhitelistAddresses] = useState<{ [key: string]: string }>({})
   const [isAddWhitelistLoading, setIsAddWhitelistLoading] = useState<{ [key: string]: boolean }>({})
-  const [isWhitelistBuyLoading, setIsWhitelistBuyLoading] = useState<{ [key: string]: boolean }>({})
-  const [isPublicOfferingBuyLoading, setIsPublicOfferingBuyLoading] = useState<{ [key: string]: boolean }>({})
-  const [isWithdrawLoading, setIsWithdrawLoading] = useState<{ [key: string]: boolean }>({})
-  const [isClaimLoading, setIsClaimLoading] = useState<{ [key: string]: boolean }>({})
-  const [isBuyLoading, setIsBuyLoading] = useState<{ [key: string]: boolean }>({})
-  const [isSellLoading, setIsSellLoading] = useState<{ [key: string]: boolean }>({})
+  // const [isWhitelistBuyLoading, setIsWhitelistBuyLoading] = useState<{ [key: string]: boolean }>({})
+  // const [isPublicOfferingBuyLoading, setIsPublicOfferingBuyLoading] = useState<{ [key: string]: boolean }>({})
+  // const [isWithdrawLoading, setIsWithdrawLoading] = useState<{ [key: string]: boolean }>({})
+  // const [isClaimLoading, setIsClaimLoading] = useState<{ [key: string]: boolean }>({})
+  // const [isBuyLoading, setIsBuyLoading] = useState<{ [key: string]: boolean }>({})
+  // const [isSellLoading, setIsSellLoading] = useState<{ [key: string]: boolean }>({})
   const [isInitializeLoading, setIsInitializeLoading] = useState<{ [key: string]: boolean }>({})
 
   // Fetch projects
@@ -146,119 +146,119 @@ const ProjectList = () => {
     [addWhitelist, whitelistAddresses, validateAddress],
   )
 
-  const handleWhitelistBuy = useCallback(
-    async (projectId: string, glaContractAddress: `0x${string}`) => {
-      try {
-        setIsWhitelistBuyLoading((prev) => ({ ...prev, [projectId]: true }))
-        const approveRes = await approveWEUSD(glaContractAddress, parseUnits(projectWhitelistAmounts[projectId], WEUSD_DECIMALS))
-        if (!approveRes.approved) {
-          throw new Error('WEUSD approval failed')
-        }
-        const res = await whitelistBuy(parseUnits(projectWhitelistAmounts[projectId], WEUSD_DECIMALS), glaContractAddress)
-        if (res.receipt.status === 'success') {
-          toast.success('Whitelist bought successfully')
-        }
-      } catch (error) {
-        toast.error(`Failed to whitelist buy: ${error}`)
-      } finally {
-        setIsWhitelistBuyLoading((prev) => ({ ...prev, [projectId]: false }))
-      }
-    },
-    [whitelistBuy, projectWhitelistAmounts, approveWEUSD],
-  )
+  // const handleWhitelistBuy = useCallback(
+  //   async (projectId: string, glaContractAddress: `0x${string}`) => {
+  //     try {
+  //       setIsWhitelistBuyLoading((prev) => ({ ...prev, [projectId]: true }))
+  //       const approveRes = await approveWEUSD(glaContractAddress, parseUnits(projectWhitelistAmounts[projectId], WEUSD_DECIMALS))
+  //       if (!approveRes.approved) {
+  //         throw new Error('WEUSD approval failed')
+  //       }
+  //       const res = await whitelistBuy(parseUnits(projectWhitelistAmounts[projectId], WEUSD_DECIMALS), glaContractAddress)
+  //       if (res.receipt.status === 'success') {
+  //         toast.success('Whitelist bought successfully')
+  //       }
+  //     } catch (error) {
+  //       toast.error(`Failed to whitelist buy: ${error}`)
+  //     } finally {
+  //       setIsWhitelistBuyLoading((prev) => ({ ...prev, [projectId]: false }))
+  //     }
+  //   },
+  //   [whitelistBuy, projectWhitelistAmounts, approveWEUSD],
+  // )
 
-  const handlePublicOfferingBuy = useCallback(
-    async (projectId: string, glaContractAddress: `0x${string}`) => {
-      try {
-        setIsPublicOfferingBuyLoading((prev) => ({ ...prev, [projectId]: true }))
-        const approveRes = await approveWEUSD(glaContractAddress, parseUnits(projectPublicOfferingAmounts[projectId], WEUSD_DECIMALS))
-        if (!approveRes.approved) {
-          throw new Error('WEUSD approval failed')
-        }
-        const res = await publicOfferingBuy(parseUnits(projectPublicOfferingAmounts[projectId], WEUSD_DECIMALS), glaContractAddress)
-        if (res.receipt.status === 'success') {
-          toast.success('Public offering bought successfully')
-        }
-      } catch (error) {
-        toast.error(`Failed to public offering buy: ${error}`)
-      } finally {
-        setIsPublicOfferingBuyLoading((prev) => ({ ...prev, [projectId]: false }))
-      }
-    },
-    [publicOfferingBuy, projectPublicOfferingAmounts, setIsPublicOfferingBuyLoading, approveWEUSD],
-  )
+  // const handlePublicOfferingBuy = useCallback(
+  //   async (projectId: string, glaContractAddress: `0x${string}`) => {
+  //     try {
+  //       setIsPublicOfferingBuyLoading((prev) => ({ ...prev, [projectId]: true }))
+  //       const approveRes = await approveWEUSD(glaContractAddress, parseUnits(projectPublicOfferingAmounts[projectId], WEUSD_DECIMALS))
+  //       if (!approveRes.approved) {
+  //         throw new Error('WEUSD approval failed')
+  //       }
+  //       const res = await publicOfferingBuy(parseUnits(projectPublicOfferingAmounts[projectId], WEUSD_DECIMALS), glaContractAddress)
+  //       if (res.receipt.status === 'success') {
+  //         toast.success('Public offering bought successfully')
+  //       }
+  //     } catch (error) {
+  //       toast.error(`Failed to public offering buy: ${error}`)
+  //     } finally {
+  //       setIsPublicOfferingBuyLoading((prev) => ({ ...prev, [projectId]: false }))
+  //     }
+  //   },
+  //   [publicOfferingBuy, projectPublicOfferingAmounts, setIsPublicOfferingBuyLoading, approveWEUSD],
+  // )
 
-  const handleWithdraw = useCallback(
-    async (projectId: string, glaContractAddress: `0x${string}`) => {
-      try {
-        setIsWithdrawLoading((prev) => ({ ...prev, [projectId]: true }))
-        const res = await withdraw(glaContractAddress)
-        if (res.receipt.status === 'success') {
-          toast.success('Withdrawn successfully')
-        }
-      } catch (error) {
-        toast.error(`Failed to withdraw: ${error}`)
-      } finally {
-        setIsWithdrawLoading((prev) => ({ ...prev, [projectId]: false }))
-      }
-    },
-    [withdraw, setIsWithdrawLoading],
-  )
+  // const handleWithdraw = useCallback(
+  //   async (projectId: string, glaContractAddress: `0x${string}`) => {
+  //     try {
+  //       setIsWithdrawLoading((prev) => ({ ...prev, [projectId]: true }))
+  //       const res = await withdraw(glaContractAddress)
+  //       if (res.receipt.status === 'success') {
+  //         toast.success('Withdrawn successfully')
+  //       }
+  //     } catch (error) {
+  //       toast.error(`Failed to withdraw: ${error}`)
+  //     } finally {
+  //       setIsWithdrawLoading((prev) => ({ ...prev, [projectId]: false }))
+  //     }
+  //   },
+  //   [withdraw, setIsWithdrawLoading],
+  // )
 
-  const handleClaim = useCallback(
-    async (projectId: string, glaContractAddress: `0x${string}`) => {
-      try {
-        setIsClaimLoading((prev) => ({ ...prev, [projectId]: true }))
-        const res = await claim(glaContractAddress)
-        if (res.receipt.status === 'success') {
-          toast.success('Claimed successfully')
-        }
-      } catch (error) {
-        toast.error(`Failed to claim: ${error}`)
-      } finally {
-        setIsClaimLoading((prev) => ({ ...prev, [projectId]: false }))
-      }
-    },
-    [claim, setIsClaimLoading],
-  )
+  // const handleClaim = useCallback(
+  //   async (projectId: string, glaContractAddress: `0x${string}`) => {
+  //     try {
+  //       setIsClaimLoading((prev) => ({ ...prev, [projectId]: true }))
+  //       const res = await claim(glaContractAddress)
+  //       if (res.receipt.status === 'success') {
+  //         toast.success('Claimed successfully')
+  //       }
+  //     } catch (error) {
+  //       toast.error(`Failed to claim: ${error}`)
+  //     } finally {
+  //       setIsClaimLoading((prev) => ({ ...prev, [projectId]: false }))
+  //     }
+  //   },
+  //   [claim, setIsClaimLoading],
+  // )
 
-  const handleBuy = useCallback(
-    async (projectId: string, marketContractAddress: `0x${string}`) => {
-      try {
-        setIsBuyLoading((prev) => ({ ...prev, [projectId]: true }))
-        const approveRes = await approveWEUSD(marketContractAddress, parseUnits(projectBuyAmounts[projectId], WEUSD_DECIMALS))
-        if (!approveRes.approved) {
-          throw new Error('WEUSD approval failed')
-        }
-        const res = await buy(marketContractAddress, parseUnits(projectBuyAmounts[projectId], WEUSD_DECIMALS))
-        if (res.receipt.status === 'success') {
-          toast.success('Bought successfully')
-        }
-      } catch (error) {
-        toast.error(`Failed to buy: ${error}`)
-      } finally {
-        setIsBuyLoading((prev) => ({ ...prev, [projectId]: false }))
-      }
-    },
-    [buy, projectBuyAmounts, setIsBuyLoading],
-  )
+  // const handleBuy = useCallback(
+  //   async (projectId: string, marketContractAddress: `0x${string}`) => {
+  //     try {
+  //       setIsBuyLoading((prev) => ({ ...prev, [projectId]: true }))
+  //       const approveRes = await approveWEUSD(marketContractAddress, parseUnits(projectBuyAmounts[projectId], WEUSD_DECIMALS))
+  //       if (!approveRes.approved) {
+  //         throw new Error('WEUSD approval failed')
+  //       }
+  //       const res = await buy(marketContractAddress, parseUnits(projectBuyAmounts[projectId], WEUSD_DECIMALS))
+  //       if (res.receipt.status === 'success') {
+  //         toast.success('Bought successfully')
+  //       }
+  //     } catch (error) {
+  //       toast.error(`Failed to buy: ${error}`)
+  //     } finally {
+  //       setIsBuyLoading((prev) => ({ ...prev, [projectId]: false }))
+  //     }
+  //   },
+  //   [buy, projectBuyAmounts, setIsBuyLoading],
+  // )
 
-  const handleSell = useCallback(
-    async (projectId: string, marketContractAddress: `0x${string}`, rwTokenAddress: `0x${string}`) => {
-      try {
-        setIsSellLoading((prev) => ({ ...prev, [projectId]: true }))
-        const res = await sell(marketContractAddress, parseUnits(projectSellAmounts[projectId], WEUSD_DECIMALS), rwTokenAddress)
-        if (res.receipt.status === 'success') {
-          toast.success('Sold successfully')
-        }
-      } catch (error) {
-        toast.error(`Failed to sell: ${error}`)
-      } finally {
-        setIsSellLoading((prev) => ({ ...prev, [projectId]: false }))
-      }
-    },
-    [sell, projectSellAmounts, setIsSellLoading],
-  )
+  // const handleSell = useCallback(
+  //   async (projectId: string, marketContractAddress: `0x${string}`, rwTokenAddress: `0x${string}`) => {
+  //     try {
+  //       setIsSellLoading((prev) => ({ ...prev, [projectId]: true }))
+  //       const res = await sell(marketContractAddress, parseUnits(projectSellAmounts[projectId], WEUSD_DECIMALS), rwTokenAddress)
+  //       if (res.receipt.status === 'success') {
+  //         toast.success('Sold successfully')
+  //       }
+  //     } catch (error) {
+  //       toast.error(`Failed to sell: ${error}`)
+  //     } finally {
+  //       setIsSellLoading((prev) => ({ ...prev, [projectId]: false }))
+  //     }
+  //   },
+  //   [sell, projectSellAmounts, setIsSellLoading],
+  // )
 
   const handleInitialize = useCallback(
     async (projectId: string, glaContractAddress: `0x${string}`) => {
@@ -281,6 +281,14 @@ const ProjectList = () => {
     fetchProjects()
   }, [fetchProjects, isConnected])
 
+  // Filter projects based on search term
+  const filteredProjects = useMemo(() => {
+    if (!searchTerm.trim()) {
+      return projects
+    }
+    return projects.filter((project) => project.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  }, [projects, searchTerm])
+
   return (
     <>
       <Card asChild className="p-4 flex-shrink-0">
@@ -290,13 +298,7 @@ const ProjectList = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input placeholder="Search by project name..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
             </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={isLoading || Object.values(isAddWhitelistLoading).some((value) => value) || Object.values(isWhitelistBuyLoading).some((value) => value)}
-            >
+            <Button type="button" variant="outline" size="sm" onClick={handleRefresh} disabled={isLoading || Object.values(isAddWhitelistLoading).some((value) => value)}>
               <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
@@ -306,8 +308,14 @@ const ProjectList = () => {
       <div className="flex flex-col mt-4 gap-4">
         {isLoading ? (
           <ProjectListSkeleton />
+        ) : filteredProjects.length === 0 && searchTerm.trim() ? (
+          <Card className="p-8 text-center">
+            <CardContent>
+              <p className="text-muted-foreground">No projects found matching &ldquo;{searchTerm}&rdquo;</p>
+            </CardContent>
+          </Card>
         ) : (
-          projects.map((project) => (
+          filteredProjects.map((project) => (
             <Card key={project.id} className="overflow-hidden">
               <CardHeader>
                 <CardTitle className="text-xl flex items-center justify-between gap-2">
@@ -373,8 +381,8 @@ const ProjectList = () => {
                   })}
                 </div>
               </CardContent>
-              <CardFooter className="flex flex-col py-3 gap-2">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              <CardFooter className="flex flex-row justify-center py-3 gap-2">
+                <div className="flex gap-2">
                   <div className="flex items-center gap-2">
                     <Input
                       className="w-full"
@@ -404,7 +412,7 @@ const ProjectList = () => {
                       {isAddWhitelistLoading[project.id.toString()] ? 'Adding...' : 'Add Whitelist'}
                     </Button>
                   </div>
-                  <div className="flex items-center gap-2">
+                  {/* <div className="flex items-center gap-2">
                     <Input
                       className="w-full"
                       placeholder="Enter amount(WEUSD)"
@@ -461,9 +469,9 @@ const ProjectList = () => {
                       {isPublicOfferingBuyLoading[project.id.toString()] ? <LoaderCircle className="w-4 h-4 mr-2 animate-spin" /> : null}
                       {isPublicOfferingBuyLoading[project.id.toString()] ? 'Buying...' : 'Public Offering Buy'}
                     </Button>
-                  </div>
+                  </div> */}
                 </div>
-                <div className="flex items-center justify-center gap-2 w-full">
+                <div className="flex items-center justify-center gap-2">
                   <Button
                     disabled={isLoading || project.phase !== 'Initialzing Phase' || isInitializeLoading[project.id.toString()]}
                     onClick={() => {
@@ -473,7 +481,7 @@ const ProjectList = () => {
                     {isInitializeLoading[project.id.toString()] ? <LoaderCircle className="w-4 h-4 mr-2 animate-spin" /> : null}
                     {isInitializeLoading[project.id.toString()] ? 'Initializing...' : 'Initialize'}
                   </Button>
-                  <Button
+                  {/* <Button
                     disabled={isLoading || project.phase !== 'Unlock Phase' || isWithdrawLoading[project.id.toString()]}
                     onClick={() => {
                       handleWithdraw(project.id.toString(), project.glaContract as `0x${string}`)
@@ -490,9 +498,9 @@ const ProjectList = () => {
                   >
                     {isClaimLoading[project.id.toString()] ? <LoaderCircle className="w-4 h-4 mr-2 animate-spin" /> : null}
                     {isClaimLoading[project.id.toString()] ? 'Claiming...' : 'Claim'}
-                  </Button>
+                  </Button> */}
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <div className="flex items-center justify-end gap-2 w-full">
                     <Input
                       className="w-full"
@@ -551,7 +559,7 @@ const ProjectList = () => {
                       {isSellLoading[project.id.toString()] ? 'Selling...' : 'Sell'}
                     </Button>
                   </div>
-                </div>
+                </div> */}
               </CardFooter>
             </Card>
           ))

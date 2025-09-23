@@ -10,7 +10,7 @@ if (!walletConnectProjectId) {
 }
 
 export const config = getDefaultConfig({
-  appName: 'InvestAdmin',
+  appName: 'RWA Admin',
   projectId: walletConnectProjectId,
   chains: [bsc, ...(isProductionInVercel() ? [] : [bscTestnet])],
   ssr: true,

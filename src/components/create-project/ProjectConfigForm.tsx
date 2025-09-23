@@ -112,20 +112,16 @@ export interface ProjectFormValues extends ProjectConfig {
 
 export const ProjectConfigForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [currentConfigType, setCurrentConfigType] = useState<'conservative' | 'aggressive' | 'balanced' | null>(null)
+  const [currentConfigType, setCurrentConfigType] = useState<'balanced' | null>(null)
   const [loadingStates, setLoadingStates] = useState<{
-    conservative: boolean
-    aggressive: boolean
     balanced: boolean
   }>({
-    conservative: false,
-    aggressive: false,
     balanced: false,
   })
   // use useState function form to ensure getting the latest value, avoid closure trap
   const [formValues, setFormValues] = useState<ProjectFormValues>({ projectName: '', ...defaultConfigValues })
 
-  const { getConservativeConfig, getAggressiveConfig, getBalancedConfig } = usePresetConfig()
+  const { getBalancedConfig } = usePresetConfig()
 
   const formatGlaConfig = useCallback((config: ProjectConfig): ProjectConfig => {
     return {
@@ -168,7 +164,7 @@ export const ProjectConfigForm = () => {
   }
 
   const handleGetConfig = useCallback(
-    async (configType: 'conservative' | 'aggressive' | 'balanced') => {
+    async (configType: 'balanced') => {
       try {
         // Set loading state for the corresponding config
         setLoadingStates((prev) => ({ ...prev, [configType]: true }))
@@ -177,12 +173,6 @@ export const ProjectConfigForm = () => {
 
         // Call the corresponding function based on config type
         switch (configType) {
-          case 'conservative':
-            configData = (await getConservativeConfig()) as ProjectConfig
-            break
-          case 'aggressive':
-            configData = (await getAggressiveConfig()) as ProjectConfig
-            break
           case 'balanced':
             configData = (await getBalancedConfig()) as ProjectConfig
             break
@@ -210,30 +200,12 @@ export const ProjectConfigForm = () => {
         setLoadingStates((prev) => ({ ...prev, [configType]: false }))
       }
     },
-    [formValues.projectName, form, formatGlaConfig, getConservativeConfig, getAggressiveConfig, getBalancedConfig],
+    [formValues.projectName, form, formatGlaConfig, getBalancedConfig],
   )
 
   return (
     <>
       <div className="flex space-x-4 mb-4">
-        <Button
-          onClick={() => handleGetConfig('conservative')}
-          variant={currentConfigType === 'conservative' ? 'default' : 'outline'}
-          className={currentConfigType === 'conservative' ? 'bg-blue-600 text-white' : ''}
-          disabled={loadingStates.conservative}
-        >
-          {loadingStates.conservative && <LoaderCircle className="w-4 h-4 mr-2 animate-spin" />}
-          {loadingStates.conservative ? 'Loading Conservative Config...' : 'Apply Conservative Config'}
-        </Button>
-        <Button
-          onClick={() => handleGetConfig('aggressive')}
-          variant={currentConfigType === 'aggressive' ? 'default' : 'outline'}
-          className={currentConfigType === 'aggressive' ? 'bg-blue-600 text-white' : ''}
-          disabled={loadingStates.aggressive}
-        >
-          {loadingStates.aggressive && <LoaderCircle className="w-4 h-4 mr-2 animate-spin" />}
-          {loadingStates.aggressive ? 'Loading Aggressive Config...' : 'Apply Aggressive Config'}
-        </Button>
         <Button
           onClick={() => handleGetConfig('balanced')}
           variant={currentConfigType === 'balanced' ? 'default' : 'outline'}

@@ -8,43 +8,43 @@ import type { Abi } from 'viem'
 export const usePresetConfig = () => {
   const factoryAddress = getFactoryAddress()
 
-  const getConservativeConfig = useCallback(async () => {
-    if (!factoryAddress) {
-      console.error('Factory address is not configured')
-      throw new Error('Factory address not configured, please check environment variables')
-    }
+  // const getConservativeConfig = useCallback(async () => {
+  //   if (!factoryAddress) {
+  //     console.error('Factory address is not configured')
+  //     throw new Error('Factory address not configured, please check environment variables')
+  //   }
 
-    console.log('Getting conservative config, Factory address:', factoryAddress)
+  //   console.log('Getting conservative config, Factory address:', factoryAddress)
 
-    const result = await readContract(config, {
-      address: factoryAddress as `0x${string}`,
-      abi: factoryAbi as Abi,
-      functionName: 'getConservativeConfig',
-      args: [],
-    })
+  //   const result = await readContract(config, {
+  //     address: factoryAddress as `0x${string}`,
+  //     abi: factoryAbi as Abi,
+  //     functionName: 'getConservativeConfig',
+  //     args: [],
+  //   })
 
-    console.log('Conservative config retrieved successfully')
-    return result
-  }, [factoryAddress])
+  //   console.log('Conservative config retrieved successfully')
+  //   return result
+  // }, [factoryAddress])
 
-  const getAggressiveConfig = useCallback(async () => {
-    if (!factoryAddress) {
-      console.error('Factory address is not configured')
-      throw new Error('Factory address not configured, please check environment variables')
-    }
+  // const getAggressiveConfig = useCallback(async () => {
+  //   if (!factoryAddress) {
+  //     console.error('Factory address is not configured')
+  //     throw new Error('Factory address not configured, please check environment variables')
+  //   }
 
-    console.log('Getting aggressive config, Factory address:', factoryAddress)
+  //   console.log('Getting aggressive config, Factory address:', factoryAddress)
 
-    const result = await readContract(config, {
-      address: factoryAddress as `0x${string}`,
-      abi: factoryAbi as Abi,
-      functionName: 'getAggressiveConfig',
-      args: [],
-    })
+  //   const result = await readContract(config, {
+  //     address: factoryAddress as `0x${string}`,
+  //     abi: factoryAbi as Abi,
+  //     functionName: 'getAggressiveConfig',
+  //     args: [],
+  //   })
 
-    console.log('Aggressive config retrieved successfully')
-    return result
-  }, [factoryAddress])
+  //   console.log('Aggressive config retrieved successfully')
+  //   return result
+  // }, [factoryAddress])
 
   const getBalancedConfig = useCallback(async () => {
     if (!factoryAddress) {
@@ -66,8 +66,8 @@ export const usePresetConfig = () => {
   }, [factoryAddress])
 
   return {
-    getConservativeConfig,
-    getAggressiveConfig,
+    // getConservativeConfig,
+    // getAggressiveConfig,
     getBalancedConfig,
   }
 }
