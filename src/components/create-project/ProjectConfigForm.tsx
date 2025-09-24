@@ -79,29 +79,29 @@ const defaultConfigValues: ProjectConfig = {
   },
   marketPrice: {
     k: 0,
-    target: 5000,
-    targetAdjusted: 6000,
-    minTarget: 3000,
-    maxTargetAdjusted: 7000,
-    raiseStep: 500,
-    lowerStep: 100,
-    lowerInterval: 604800, // 7 days in seconds
+    target: 0,
+    targetAdjusted: 0,
+    minTarget: 0,
+    maxTargetAdjusted: 0,
+    raiseStep: 0,
+    lowerStep: 0,
+    lowerInterval: 0, // 7 days in seconds
   },
   marketFee: {
     dev: '',
-    buyFee: 200,
-    sellFee: 300,
+    buyFee: 0,
+    sellFee: 0,
   },
   gla: {
-    beforeWhitelistInterval: 604800, // 7 days
-    whitelistInterval: 259200, // 3 days
-    publicOfferingInterval: 604800, // 7 days
-    initInterval: 86400, // 1 day
-    whitelistPrice: 500000, // 0.5 WEUSD
-    publicOfferingPrice: 1000000, // 1 WEUSD
-    softCap: 50000000000, // 50000e6
-    hardCap: 200000000000, // 200000e6
-    whitelistMaxCapPerUser: 1000000000, // 1000e6
+    beforeWhitelistInterval: 0, // 7 days
+    whitelistInterval: 0, // 3 days
+    publicOfferingInterval: 0, // 7 days
+    initInterval: 0, // 1 day
+    whitelistPrice: 0, // 0.5 WEUSD
+    publicOfferingPrice: 0, // 1 WEUSD
+    softCap: 0, // 50000e6
+    hardCap: 0, // 200000e6
+    whitelistMaxCapPerUser: 0, // 1000e6
     WEUSDToken: '',
   },
 }
@@ -630,7 +630,7 @@ export const ProjectConfigForm = () => {
                   name="gla.whitelistPrice"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>whitelistPrice</FormLabel>
+                      <FormLabel>whitelistPrice(based on 1e6)</FormLabel>
                       <FormControl>
                         <Input type="number" placeholder="1000000" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
                       </FormControl>
@@ -643,7 +643,7 @@ export const ProjectConfigForm = () => {
                   name="gla.publicOfferingPrice"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>publicOfferingPrice</FormLabel>
+                      <FormLabel>publicOfferingPrice(based on 1e6)</FormLabel>
                       <FormControl>
                         <Input type="number" placeholder="1200000" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
                       </FormControl>
@@ -656,7 +656,7 @@ export const ProjectConfigForm = () => {
                   name="gla.softCap"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>softCap</FormLabel>
+                      <FormLabel>softCap(based on 1e6)</FormLabel>
                       <FormControl>
                         <Input type="number" placeholder="1000000" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
                       </FormControl>
@@ -669,7 +669,7 @@ export const ProjectConfigForm = () => {
                   name="gla.hardCap"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>hardCap</FormLabel>
+                      <FormLabel>hardCap(based on 1e6)</FormLabel>
                       <FormControl>
                         <Input type="number" placeholder="5000000" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
                       </FormControl>
@@ -682,7 +682,7 @@ export const ProjectConfigForm = () => {
                   name="gla.whitelistMaxCapPerUser"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>whitelistMaxCapPerUser</FormLabel>
+                      <FormLabel>whitelistMaxCapPerUser(based on 1e6)</FormLabel>
                       <FormControl>
                         <Input type="number" placeholder="10000" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
                       </FormControl>
